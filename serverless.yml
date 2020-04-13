@@ -1,0 +1,57 @@
+service:
+  name: serverless-jaebook-chat
+
+plugins:
+  - serverless-webpack
+
+custom:
+  stage: ${opt:stage, 'dev'}
+  sessionTTL: 600
+
+provider:
+  name: aws
+  region: ap-northeast-2
+  runtime: nodejs12.x
+  websocketApiName: serverless-websockets-chat
+  websocketApiRouteSelectionExpression: $request.body.action
+  environment:
+    MESSAGES_TABLE: jaebook-chat-messages-${self:custom.stage}
+    CONNECTIONS_TABLE: jaebook-chat-connections-${self:custom.stage}
+    SESSION_TTL: ${self:custom.sessionTTL}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "execute-api:ManageConnections"
+      Resource:
+        - "arn:aws:execute-api:*:*:**/@connections/*"
+    - Effect: 'Allow'
+      Action:
+        - 'dynamodb:*'
+      Resource:
+        - "Fn::GetAtt": [ MessagesTable, Arn ]
+        - "Fn::GetAtt": [ ConnectionsTable, Arn ]
+
+functions:
+  connect:
+    handler: src/handler.connect
+    events:
+      - websocket:
+          route: $connect
+  disconnect:
+    handler: src/handler.disconnect
+    events:
+      - websocket:
+          route: $disconnect
+  setName:
+    handler: src/setName.handler
+    events:
+      - websocket:
+          route: setName
+  message:
+    handler: src/message.handler
+    events:
+      - websocket:
+          route: message
+
+resources:
+  - ${file(./infra/dynamodb.yml)}

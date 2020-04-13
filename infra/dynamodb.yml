@@ -1,0 +1,55 @@
+Resources:
+  MessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: jaebook-chat-messages-${self:custom.stage}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: roomKey
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: N
+      # Shard messages by messageId
+      KeySchema:
+        - AttributeName: roomKey
+          KeyType: HASH
+        # sort messages by createdAt timestamp
+        - AttributeName: createdAt
+          KeyType: RANGE
+  ConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: jaebook-chat-connections-${self:custom.stage}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: connectionId
+          AttributeType: S
+        - AttributeName: roomKey
+          AttributeType: S
+        - AttributeName: joinedAt
+          AttributeType: N
+      KeySchema:
+        # Shard connections by connectionId
+        - AttributeName: connectionId
+          KeyType: HASH
+        # Sort using joinedAt timestamp
+        - AttributeName: joinedAt
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: roomKeyGSI
+          KeySchema:
+            # Shard connections by roomKey
+            - AttributeName: roomKey
+              KeyType: HASH
+            # Sort using joinedAt timestamp
+            - AttributeName: joinedAt
+              KeyType: RANGE
+          # ProvisionedThroughput:
+          #   ReadCapacityUnits: 1
+          #   WriteCapacityUnits: 1
+          Projection:
+            ProjectionType: "ALL"
+      # Kill AFK connections after time specified in custom.sessionTTL
+      TimeToLiveSpecification:
+        Enabled: true
+        AttributeName: terminateAt
