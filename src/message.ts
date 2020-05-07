@@ -8,7 +8,7 @@ import { putMessage } from "./utils/dynamodb";
 export const handler: Handler = async (
   event: WebsocketAPIGatewayEvent,
   _,
-  callback
+  callback,
 ) => {
   const ws = new webSocketClient(event.requestContext);
   await broadcast(event.body, ws);
