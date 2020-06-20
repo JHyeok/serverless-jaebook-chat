@@ -3,7 +3,7 @@ import { WebsocketAPIGatewayEvent } from "./types/gateway";
 import {
   saveConnection,
   deleteConnection,
-  getAllConnections
+  getAllConnections,
 } from "./utils/dynamodb";
 import { success } from "./utils/response";
 import broadcast from "./utils/broadcast";
@@ -22,9 +22,7 @@ export const connect: Handler = async (event: WebsocketAPIGatewayEvent) => {
   return success;
 };
 
-export const disconnect: Handler = async (
-  event: WebsocketAPIGatewayEvent
-) => {
+export const disconnect: Handler = async (event: WebsocketAPIGatewayEvent) => {
   const { connectionId, connectedAt } = event.requestContext;
   const ws = new websocketClient(event.requestContext);
 

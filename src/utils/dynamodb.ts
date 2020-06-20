@@ -12,8 +12,8 @@ export const saveConnection = (connectionId: string, connectedAt: number) =>
         terminateAt: (
           connectedAt / 1000 +
           parseInt(process.env.SESSION_TTL)
-        ).toFixed(0)
-      }
+        ).toFixed(0),
+      },
     })
     .promise();
 
@@ -23,8 +23,8 @@ export const deleteConnection = (connectionId: string, connectedAt: number) =>
       TableName: process.env.CONNECTIONS_TABLE,
       Key: {
         connectionId,
-        joinedAt: connectedAt
-      }
+        joinedAt: connectedAt,
+      },
     })
     .promise();
 
@@ -34,20 +34,20 @@ export const getAllConnections = () =>
 export const rename = (
   connectionId: string,
   connectedAt: number,
-  name: string
+  name: string,
 ) =>
   dynamo
     .update({
       TableName: process.env.CONNECTIONS_TABLE,
       Key: {
         connectionId,
-        joinedAt: connectedAt
+        joinedAt: connectedAt,
       },
       ExpressionAttributeNames: { "#name": "name" },
       UpdateExpression: "set #name = :name",
       ExpressionAttributeValues: {
-        ":name": name
-      }
+        ":name": name,
+      },
     })
     .promise();
 
@@ -58,8 +58,8 @@ export const putMessage = (body: string) =>
       Item: {
         body,
         roomKey: "PARTITION_0",
-        createdAt: +new Date()
-      }
+        createdAt: +new Date(),
+      },
     })
     .promise();
 
@@ -70,9 +70,9 @@ export const getLastNMessagesByTime = (from: number, count: number) =>
       KeyConditionExpression: "roomKey = :hkey and createdAt < :rkey",
       ExpressionAttributeValues: {
         ":hkey": "PARTITION_0",
-        ":rkey": from
+        ":rkey": from,
       },
       Limit: count,
-      ScanIndexForward: false // Change order to descending!
+      ScanIndexForward: false,
     })
     .promise();

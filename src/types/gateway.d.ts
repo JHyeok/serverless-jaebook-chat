@@ -1,4 +1,4 @@
-import { APIGatewayEvent, APIGatewayEventRequestContext } from 'aws-lambda';
+import { APIGatewayEvent, APIGatewayEventRequestContext } from "aws-lambda";
 
 interface RealtimeAPIGatewayEventRequestContext
   extends APIGatewayEventRequestContext {
